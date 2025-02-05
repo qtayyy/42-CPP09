@@ -1,0 +1,67 @@
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< FORD-JOHNSON ALGORITHM >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+1.	Pair adjacent elements together and compare their largest element. Swap
+	them if they're out of order. Ignore any unpaired element (we call it a straggler).
+2.	Repeat step 1 by creating pair of pairs, pair of pairs of pairs ...
+3.	For each recursion level, create a main and pend chain. The main chain
+	will consist of units (an entity of a pair; each pair has two units)
+	which are larger within a pair while the pend chain will consist of
+	units which are smaller. Move the first unit of the pend chain to
+	the main chain.
+		a.	We label units in a pair as {bx, ax} where ax >= bx.
+		b.	Therefore, after step 3., our main and pend chains will be as
+			follows:
+			main: b1, a1, a2, a3, ...
+			pend: b2, b3, ...
+4.	Units in pend will then be inserted into main in an order determined by
+	Jacobsthal numbers. Jacobsthal numbers ensure that that surface area for
+	searching an appropriate index for binary insertion is maximized using the
+	least number of comparisons (max num of comparisons for searching within
+	2^n and 2^(n+1)-1 elements are the same, so we try to search within
+	2^(n+1)-1 elements as much as possible).
+		a.	Jacobsthal sequence: 0, 1, 1, 3, 5, 11, 21, ...
+			(https://en.wikipedia.org/wiki/Jacobsthal_number)
+		b.	The first current Jnum we use is 3. This number tells us the surface
+			area for searching (most of the time it's 2^(n+1)-1 but we have to
+			count inserted units and offsets in later insertions).
+		c.	The difference between the current Jnum and the previous Jnum tells
+			us how many pend units we should insert and which unit to start
+			inserting from (we start from (diff - 1) and we work to the front).
+			Units are inserted into main using binary insertion.
+		d.	If the unit inserts directly on the last search unit of the main, we
+			gotta add an offset value to ensure the last unit to search until
+			(i.e., the search area) doesn't get affected in subsequent insertions. 
+		e.	If there are sufficient numbers in pend, move on to the next Jnum
+			and repeat the whole process.
+5.	If pend still has units but the order of insertion cannot be determined using
+	Jnum, we insert using binary insertion with the search area determined by
+	ax of the current bx unit.
+		a.	E.g., if we're inserting b2, the bound will be a2 since it's guaranteed
+			that a2 >= b2.
+6.	If the straggler exists, it is inserted into the main chain by searching
+	the entire chain using binary search (main is already sorted-ish).
+
+Implementation details: due to the fact that we store the addresses of the elements
+of the original container, we have to copy the new ordering into a new container
+before overwriting the original container.
+
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< CONTAINER COMPARISON >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[ MEMORY LAYOUT ]
+Vectors store elements contiguously in memory which leads to faster access
+times for individual elements especially if memory is accessed sequentially.
+
+Double-ended queues store multiple blocks of memory which aren't contiguous.
+This leads to frequent cache-misses which means slower access times.
+
+[ INSERTIONS/DELETIONS ]
+Vectors support fast insertions/deletions at the end but can be slow in the
+middle as shifting is required.
+
+Deques support fast insertions/deletions at both ends but can be slower
+in the middle than in a vector as entire blocks may have to be rearranged.
+
+[ CONCLUSION ]
+The Ford-Johnson algorithm using vectors is likely to be faster than the one
+using deques. Faster random access iterators could be a small factor contributing
+to this discrepancy but the binary insertion probably slowed it down significantly
+(see std::upperbound() and subsequent insertion).
