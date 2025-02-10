@@ -6,7 +6,7 @@
 /*   By: qtay <qtay@student.42kl.edu.my>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 10:34:33 by qtay              #+#    #+#             */
-/*   Updated: 2024/11/25 14:36:09 by qtay             ###   ########.fr       */
+/*   Updated: 2025/02/10 15:14:44 by qtay             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,8 @@
 
 using std::cout;
 using std::endl;
+
+int numOfComparisons = 0;
 
 static bool	containsOnly(const std::string &word, const std::string &allowedChars)
 {
@@ -66,33 +68,77 @@ int	main(int argc, char **argv)
 	}
 	PmergeMe	pmerge;
 
-	clock_t		dequeStartTime = clock();
-	pmerge.fillDeque(fullSequence);
-	cout << "[ DEQUE CONTAINER ]\n";
-	cout << "Before: ";
-	pmerge.printDeque();
-	pmerge.fordJohnsonSortDeque(1);
-	clock_t		dequeEndTime = clock();
-	cout << "After: ";
-	pmerge.printDeque();
-	double dequeTimeElapsed = static_cast<double>(dequeEndTime - dequeStartTime) / CLOCKS_PER_SEC * 1000000;
-    cout << "Time to process a range of " << pmerge.getDequeSize()
-              << " elements with std::deque: "
-              << dequeTimeElapsed << " us\n";
-	cout << endl;
+	#ifdef BENCHMARK
+		pmerge.fillDeque(fullSequence);
+		pmerge.fordJohnsonSortDeque(1);
+		if (!isSorted(pmerge.getDeque()))
+		{
+			cout << RED "Fatal: sequence not sorted!" RESET << endl;
+			pmerge.printDeque();
+			exit(123);
+		}
+		cout << numOfComparisons << endl;
+	#else
+		clock_t		dequeStartTime = clock(); // number of CPU clock ticks elapsed
+		pmerge.fillDeque(fullSequence);
+		cout << CYAN "[ DEQUE CONTAINER ]\n" RESET;
+		cout << RED "Before: ";
+		pmerge.printDeque();
+		pmerge.fordJohnsonSortDeque(1);
+		clock_t		dequeEndTime = clock();
+		if (!isSorted(pmerge.getDeque()))
+		{
+			cout << RED "Fatal: sequence not sorted: " ;
+			pmerge.printDeque();
+			exit(123);
+		}
+		cout << GREEN "After: ";
+		pmerge.printDeque();
+		cout << MAGENTA "Sorted successfully!" RESET << endl;
+		double dequeTimeElapsed = static_cast<double>(dequeEndTime - dequeStartTime) / CLOCKS_PER_SEC * 1000000;
+		cout << YELLOW "Time to process a range of " << pmerge.getDequeSize()
+				<< " elements with std::deque: "
+				<< dequeTimeElapsed << " us\n" RESET;
+		std::cout << "Num of comparisons: " << numOfComparisons << std::endl;
+		cout << endl;
+	#endif
 
-	clock_t		vecStartTime = clock();
-	pmerge.fillVector(fullSequence);
-	cout << "[ VECTOR CONTAINER ]\n";
-	cout << "Before: ";
-	pmerge.printVector();
-	pmerge.fordJohnsonSortVector(1);
-	clock_t		vecEndTime = clock();
-	cout << "After: ";
-	pmerge.printVector();
-	double vecTimeElapsed = static_cast<double>(vecEndTime - vecStartTime) / CLOCKS_PER_SEC * 1000000;
-    cout << "Time to process a range of " << pmerge.getVectorSize()
-              << " elements with std::vector: "
-              << vecTimeElapsed << " us\n";
+	#ifdef BENCHMARK
+		numOfComparisons = 0;
+		pmerge.fillVector(fullSequence);
+		pmerge.fordJohnsonSortVector(1);
+		if (!isSorted(pmerge.getVector()))
+		{
+			cout << MAGENTA "Fatal: sequence not sorted!" RESET << endl;
+			pmerge.printVector();
+			exit(123);
+		}
+		cout << numOfComparisons << endl;
+	#else
+		numOfComparisons = 0;
+		clock_t		vecStartTime = clock();
+		pmerge.fillVector(fullSequence);
+		cout << CYAN "[ VECTOR CONTAINER ]\n" RESET;
+		cout << RED "Before: ";
+		pmerge.printVector();
+		pmerge.fordJohnsonSortVector(1);
+		clock_t		vecEndTime = clock();
+		if (!isSorted(pmerge.getVector()))
+		{
+			cout << MAGENTA "Fatal: sequence not sorted!" RESET << endl;
+			pmerge.printVector();
+			exit(123);
+		}
+		cout << GREEN"After: ";
+		pmerge.printVector();
+		cout << MAGENTA "Sorted successfully!" RESET << endl;
+		double vecTimeElapsed = static_cast<double>(vecEndTime - vecStartTime) / CLOCKS_PER_SEC * 1000000;
+		cout << YELLOW "Time to process a range of " << pmerge.getVectorSize()
+				<< " elements with std::vector: "
+				<< vecTimeElapsed << " us\n" RESET;
+		std::cout << "Num of comparisons: " << numOfComparisons << std::endl;
+		cout << "------------------------------------------------------------------------------------------" << endl;
+	#endif
+
 	return (0);
 }
