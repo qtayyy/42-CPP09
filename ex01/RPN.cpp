@@ -6,7 +6,7 @@
 /*   By: qtay <qtay@student.42kl.edu.my>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/18 11:35:42 by qtay              #+#    #+#             */
-/*   Updated: 2024/11/18 15:19:58 by qtay             ###   ########.fr       */
+/*   Updated: 2025/02/06 16:20:45 by qtay             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,34 +43,39 @@ static bool	validChars(const std::string& args, exprToken token)
 	return (false);
 }
 
-static int strToInt(const std::string& str)
+static int ft_stoi(const std::string& str)
 {
-    long	result = 0;
-    int		sign = 1;
-    size_t	i = 0;
+	long	result = 0;
+	int		sign = 1;
+	size_t	i = 0;
+	errno = 0;
 
-	if (str.empty())
-		return 0;
-
-	if (str[i] == '-')
+	while (str[i] == 32 || (str[i] >= 9 && str[i] <= 13))
+		i++;
+	if (str[i] == '-' || str[i] == '+')
 	{
-		sign = -1;
+		if (str[i] == '-')
+			sign = -1;
 		i++;
 	}
-	else if (str[i] == '+')
-		i++;
 
-	for (; i < str.length(); i++)
+	while (str[i] >= '0' && str[i] <= '9')
 	{
-		if (str[i] < '0' || str[i] > '9')
-			return (0);
 		int	digit = str[i] - '0';
+		if (sign == 1 && (result > (INT_MAX - digit) / 10))
+		{
+			errno = ERANGE;
+			return (INT_MAX);
+		}
+		if (sign == -1 && (-result < (INT_MIN + digit) / 10))
+		{
+			errno = ERANGE;
+			return (INT_MIN);
+		}
 		result = result * 10 + digit;
+		i++;
 	}
-	result = result * sign;
-	if (result > INT_MAX || result < INT_MIN)
-		return (0);
-	return (static_cast<int>(result));
+	return (static_cast<int>(result * sign));
 }
 
 /**
@@ -80,11 +85,20 @@ int	RPN::evalExpression(const std::string &args)
 {
 	std::string	token;
 	std::istringstream	ss(args);
+	int	num;
 
 	while (std::getline(ss, token, ' '))
 	{
 		if (validChars(token, OPERAND))
-			this->_storage.push(strToInt(token));
+		{
+			num = ft_stoi(token);
+			if (errno == ERANGE || num < 0 || num > 9)
+			{
+				cerr << "Error: Number must be between 0 and 9\n";
+				exit(1);
+			}
+			this->_storage.push(num);
+		}
 
 		else if (validChars(token, OPERATOR) && this->_storage.size() >= 2)
 		{
