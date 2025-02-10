@@ -6,7 +6,7 @@
 /*   By: qtay <qtay@student.42kl.edu.my>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/17 16:05:04 by qtay              #+#    #+#             */
-/*   Updated: 2024/11/18 01:29:07 by qtay             ###   ########.fr       */
+/*   Updated: 2025/02/10 17:22:10 by qtay             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,7 +50,7 @@ void	BitcoinExchange::readFile(std::ifstream &fileName)
 	std::string	line;
 	float		value;
 
-	std::getline(fileName, line);
+	std::getline(fileName, line); // skip first line
 	while (std::getline(fileName, line))
 	{
 		size_t pos = line.find(',');

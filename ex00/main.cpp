@@ -6,7 +6,7 @@
 /*   By: qtay <qtay@student.42kl.edu.my>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/17 16:05:00 by qtay              #+#    #+#             */
-/*   Updated: 2024/11/18 01:30:12 by qtay             ###   ########.fr       */
+/*   Updated: 2025/02/06 16:06:12 by qtay             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,6 +103,12 @@ static bool	validValue(const std::string &value)
 	if (value.empty())
 		return (false);
 	float	floatValue = strtof(value.c_str(), NULL);
+	if (errno == ERANGE)
+	{
+		cerr <<  "Error: float overflow or underflow" << endl;
+		errno = 0;
+		return (false);	
+	}
 	if (floatValue < 0)
 	{
 		cerr <<  "Error: not a positive number" << endl;
@@ -120,7 +126,7 @@ static void	analyzeInput(std::ifstream &inputFile, BitcoinExchange &btc)
 {
 	std::string	line;
 
-	std::getline(inputFile, line);
+	std::getline(inputFile, line); // skip first line
 	while (std::getline(inputFile, line))
 	{
 		size_t	pos = line.find('|');
@@ -159,11 +165,18 @@ int	main(int argc, char **argv)
 	}
 	std::ifstream database("data.csv");
 	if (!database.is_open())
+	{
 		cerr << "Error: Could not open data.csv\n";
+		return (1);
+	}
 
 	std::ifstream input(argv[1]);
 	if (!input.is_open())
+	{
 		cerr << "Error: Could not open " << argv[1] << endl;
+		database.close();
+		return (1);
+	}
 
 	BitcoinExchange	btc;
 	btc.readFile(database);
