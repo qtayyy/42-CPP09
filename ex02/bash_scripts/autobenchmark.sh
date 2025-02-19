@@ -3,7 +3,7 @@
 # Known max comparisons for the Ford-Johnson algorithm
 declare -A limits=( [1]=0 [2]=1 [3]=3 [4]=5 [5]=7 [6]=10 [7]=13 [8]=16 [9]=19 [10]=22 [11]=26 [12]=30)
 
-for n in {3..12}; do  # Run for n = 1 to 12
+for n in {3..12}; do  # Run for n = 3 to 12
     for i in {1..200}; do # Run 200 times each for n elements
         output=$(./PmergeMe_bench $(shuf -i 1-2147483647 -n $n | tr "\n" " "))
         ret=$?
