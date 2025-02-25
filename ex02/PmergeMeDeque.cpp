@@ -6,7 +6,7 @@
 /*   By: qtay <qtay@student.42kl.edu.my>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/24 16:54:34 by qtay              #+#    #+#             */
-/*   Updated: 2025/02/10 16:49:54 by qtay             ###   ########.fr       */
+/*   Updated: 2025/02/25 10:56:57 by qtay             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,16 +106,6 @@ void	PmergeMe::fordJohnsonSortDeque(int unitSize)
 	{
 		iter_deque::iterator	currPend = pend.begin() + i;
 		iter_deque::iterator	currBound = advanceIter(main.begin(), main.size() - pend.size() + i + hasStraggler);
-		if (currBound < main.begin() || currBound > main.end())
-		{
-			std::cout <<"Currbound issue" << std::endl;
-			exit(1);
-		}
-		if (currPend < pend.begin() || currPend >= pend.end())
-		{
-			std::cout <<"CurrPend issue" << std::endl;
-			exit(1);
-		}
 		iter_deque::iterator	idx = std::upper_bound(main.begin(), currBound, *currPend, compare<deque_t::iterator>);
 		main.insert(idx, *currPend);
 	}
